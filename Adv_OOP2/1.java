@@ -3,15 +3,15 @@ import java.io.*;
      
 class BankAcct{
 	static int accns = 1;
-	int accn;
-	float balance;
-	static float interest = 10.0f;
+	private int accn;
+	private float balance;
+	private static float interest = 10.0f;
 	BankAcct(float balance){this.balance = balance;accn = accns++;}
 	static void setInterestRate(float intrst){interest = intrst;}
-	void showInterestRate(){System.out.println(interest);}
-	void showBalance(){System.out.println(balance);}
+	void showInterestRate(){System.out.println("Interest Rate: "+interest);}
+	void showBalance(){System.out.println("Balance: "+balance);}
 	float calcInterestAmount(){return balance*interest*0.01f;}
-        void showAccountNumber(){System.out.println(accn);}
+        void showAccountNumber(){System.out.println("Account Number: "+accn);}
 
 	public static void main(String[] args) throws Exception{
           Scanner s = new Scanner(System.in);

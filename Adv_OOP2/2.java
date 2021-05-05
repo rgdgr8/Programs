@@ -14,7 +14,7 @@ class Metric{
 		BigDecimal v = new BigDecimal(s.next());
                 if(opt=='1'){
                    int sc = v.scale();
-		   System.out.println(v+" km is "+KmToMile(v,sc)+" mi");
+		   System.out.println(v+" km is "+KmToMile(v,(sc+2))+" mi");
 		}
                 else
 		   System.out.println(v+" mi is "+MileToKm(v)+" km");

@@ -3,7 +3,7 @@ import java.util.*;
 import java.util.regex.*;
 
 public class Comments{
-	public static final Pattern pat = Pattern.compile("(?://(.+))|(?:/\\*(.*)\\*/)");
+	public static final Pattern pat = Pattern.compile("(?://(.+))|(?:/\\*((?:.|\\n)*?)\\*/)");
 
 	public static void main(String[] args) throws Exception {
 		Scanner s = new Scanner(System.in);

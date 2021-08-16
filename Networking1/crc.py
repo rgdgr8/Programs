@@ -1,5 +1,3 @@
-import numpy
-
 generator = '100101'
 ZERO = '00000'
 

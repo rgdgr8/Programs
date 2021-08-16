@@ -11,7 +11,7 @@ from threading import Thread,Condition,Lock
 
 class Network:
     PORT = 12345
-    def __init__(self,opt,timeout=2,recvBytes=1024,bits=256):
+    def __init__(self,opt,timeout=1,recvBytes=1024,bits=256):
         self.recvB = recvBytes
         self.timeout = timeout
         self.bits = bits
@@ -58,30 +58,22 @@ class Network:
             codeword = vrc_or_crc.sender_check(dataword)
             print(f"sender codeword{num} =",codeword)
             codeword = self.injectError(codeword)
-            codeword = codeword.encode()
-            try:
-                mysock.sendall(codeword)
-                while True:
-                    response = mysock.recv(self.recvB)
-                    if len(response) < 1:
-                        break
-                    print(f"response{num} =",response.decode())
-            except Exception as e:
-                if(isinstance(e,socket.timeout)==False):
-                    print(f'client exception:',e)
+            mysock.sendall(codeword.encode())
+            response = mysock.recv(self.recvB)
+            print(f"response{num} =",response.decode())
             num += 1
 
-    def recvr_vrc_or_crc(self,client,vrc_or_crc):
+    def recvr_vrc_or_crc(self,sender,vrc_or_crc):
         j = 1
         while True:
-            codeword = client.recv(self.recvB) #recv method waits until client socket closes.
+            codeword = sender.recv(self.recvB) #recv method waits until sender socket closes.
             if(len(codeword)<=0):
                 break
 
             codeword = codeword.decode()
             print(f'recver codeword{j} =',codeword)
             error = vrc_or_crc.recvr_check(codeword)
-            client.sendall(error.encode())
+            sender.sendall(error.encode())
             j += 1
 
     def sender_lrc_or_checksum(self,data,mysock,lrc_or_checksum):
@@ -97,28 +89,22 @@ class Network:
         print('grouped words:',words)
         codeword = lrc_or_checksum.sender_check(words,frame)
         print('sender codeword:',codeword)
-        codeword = self.injectError(codeword)
-        try:
-            mysock.sendall(codeword.encode())
-            while True:
-                response = mysock.recv(self.recvB)
-                if len(response) < 1:
-                    break
-                print(f"response =",response.decode())
-        except Exception as e:
-            if(isinstance(e,socket.timeout)==False):
-                print(f'client exception:',e)
+        codeword = self.injectError(codeword) + 'x' #x appended to indicated end of frame
+        mysock.sendall(codeword.encode())
+        response = mysock.recv(self.recvB)
+        print(f"response =",response.decode())
 
-    def recvr_lrc_or_checksum(self,client,lrc_or_checksum):
+    def recvr_lrc_or_checksum(self,sender,lrc_or_checksum):
         frame = self.bits//4
         if(lrc_or_checksum is lrc):
             frame = int(sqrt(self.bits))
-        client.settimeout(self.timeout//2)#so that receiver recv() times out before sender, otherwise the response will not be received by the sender
+        #sender.settimeout(self.timeout//2)#so that receiver recv() times out before sender, otherwise the response will not be received by the sender
         codeword = ""
         try:
             while True:
-                recv = client.recv(self.recvB)
-                if(len(recv)<=0):
+                recv = sender.recv(self.recvB)
+                if(len(recv)<=0 or recv[-1]==120):#120 is x, the terminating character
+                    codeword += recv[:len(recv)-1].decode()
                     break
                 codeword += recv.decode()
         except Exception as e:
@@ -128,13 +114,12 @@ class Network:
         print('recver codeword:',codeword)
         error = lrc_or_checksum.recvr_check(codeword,frame)
         #print(error)
-        client.sendall(error.encode())
+        sender.sendall(error.encode())
 
-    def client(self):
+    def sender(self):
         time.sleep(0.5) #so that the receiver thread starts before the sender thread
         mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         mysock.connect((socket.gethostname(),Network.PORT))
-        mysock.settimeout(self.timeout) #this is required so that the blocking recv() call gets timeout exception if it is not receiving and the loop can move on
 
         file = open("data.txt","r")
         try:
@@ -153,26 +138,26 @@ class Network:
         finally:
             mysock.close()
 
-    def server(self):
+    def receiver(self):
         with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
             s.bind((socket.gethostname(),Network.PORT))
             s.listen()
-            client,addr = s.accept()
+            sender,addr = s.accept()
 
         try:
             if(self.opt=='1'):
-                self.recvr_vrc_or_crc(client,vrc)
+                self.recvr_vrc_or_crc(sender,vrc)
             elif(self.opt=='2'):
-                self.recvr_vrc_or_crc(client,crc)
+                self.recvr_vrc_or_crc(sender,crc)
             elif(self.opt=='3'):
-                self.recvr_lrc_or_checksum(client,lrc)
+                self.recvr_lrc_or_checksum(sender,lrc)
             elif(self.opt=='4'):
-                self.recvr_lrc_or_checksum(client,checksum)
+                self.recvr_lrc_or_checksum(sender,checksum)
         
         except Exception as e:
             print('receiver exception:',e)
         finally:
-            client.close()
+            sender.close()
 
 while(True):
     opt = input('''
@@ -190,8 +175,8 @@ while(True):
         sys.exit(0)
 
     net = Network(opt,bits=16)
-    st = Thread(None,net.server)
-    ct = Thread(None,net.client)
+    st = Thread(None,net.receiver)
+    ct = Thread(None,net.sender)
 
     st.start()
     ct.start()

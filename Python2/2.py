@@ -13,7 +13,7 @@ class SP:
     def client(self):
         mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         mysock.connect((socket.gethostname(),SP.PORT))
-        mysock.settimeout(self.timeout)
+        mysock.settimeout(self.timeout)#this is required so that the blocking recv() call gets timeout exception if it is not receiving and the loop can move on
         try:
             for loop in range(1,self.loop):
                 try:

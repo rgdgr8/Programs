@@ -2,11 +2,11 @@
 #include<stdlib.h>
 #include"list.h"
 
-typedef struct list{
+typedef struct list{//list structure
   node *h,*t;
 }list;
 
-void del(list l,int key){
+void del(list l,int key){//delete key from list
   node *x = search(l.h,key);
   
   if(x==NULL)

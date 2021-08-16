@@ -2,20 +2,20 @@
 #include <stdlib.h>
 #define COMPARE(a,b) a==b ? 0 : (a>b ? 1 : -1)
 
-typedef struct term{
+typedef struct term{//stores the exponent of x and the coeffecient of x for each term in the polynomial
  int exp;
  float coeff;
 }term;
-term *t;
+term *t;//an array for storing terms of the polynomial
 
-typedef struct polynomial{
+typedef struct polynomial{//stores the starting and the ending index of a polynomial in the array t
  int start;
  int end;
 }polynomial;
-polynomial* p;
+polynomial* p; //an array for storing the starting and ending indices of multiple polynomials in array t
 
-  int pi = 0;//polynomial array index
-  int ti = 0;//term array index
+  int pi = 0;//polynomial array index, initially 0
+  int ti = 0;//term array index, initially 0
   int max_t = 0;//maximum terms
   int max_p = 0;//maximum polynomials
 
@@ -29,8 +29,8 @@ polynomial* p;
       scanf("%d",&max_p);
       printf("Enter maximum number of terms required: ");
       scanf("%d",&max_t);
-      t = malloc(max_t*sizeof(term));
-      p = malloc(max_p*sizeof(polynomial));
+      t = (term*)malloc(max_t*sizeof(term));//initialize t
+      p = (polynomial*)malloc(max_p*sizeof(polynomial));//initialize p
     }
   }
 
@@ -45,7 +45,7 @@ polynomial* p;
       return; 
     }
 
-    int terms;
+    int terms;//number of terms in the polynomial
     printf("Enter number of terms for for the %dth polynomial: ",pi);
     scanf("%d",&terms);
 
@@ -54,9 +54,9 @@ polynomial* p;
       return;
     }
 
-    a->start = ti;
-    a->end = (ti+terms-1);
-    p[pi++] = *a;
+    a->start = ti;//starting index of polynomail a in array t
+    a->end = (ti+terms-1);//ending index of polynomail a in array t
+    p[pi++] = *a;//store in array p
 
     printf("Input in strictly desecnding order of exponents\n");
     for(int i=0;i<terms;i++){
@@ -74,7 +74,7 @@ polynomial* p;
        printf("Enter coefficient: ");
        scanf("%f",&c);
        term x = {e,c};
-       t[ti++] = x;
+       t[ti++] = x;//store the polynomial after taking input from user in array t, and increment ti in the process to point to the index after this polynomial
     }
   }
 
@@ -96,8 +96,10 @@ polynomial* p;
          t[ti].exp = t[i].exp;
          t[ti++].coeff = t[i].coeff;
       }
+      //update array p accordingly
       polynomial tp = {tti,(ti-1)};
       p[pi++] =  tp;
+
       return tp;
     }
 
@@ -107,14 +109,18 @@ polynomial* p;
          t[ti].exp = t[i].exp;
          t[ti++].coeff = t[i].coeff;
       }
+      //update array p accordingly
       polynomial tp = {tti,(ti-1)};
       p[pi++] =  tp;
+
       return tp;
     }
- 
-    int tas = a.start;
-    int tbs = b.start;
-    
+
+    /********if none of the polynomials are zero polynomials go below*********/
+
+    int tas = a.start;//save starting index of polynomial a
+    int tbs = b.start;//save starting index of polynomial b
+
     while(tas<=a.end && tbs<=b.end){//while one of the two polynomials is fully read
 
        if(ti>=max_t){//if terms array(t) is full
@@ -127,18 +133,18 @@ polynomial* p;
 
        if(res==0){//if the exponents are equal
 
-         term tt = {t[tas].exp,(t[tas].coeff+t[tbs].coeff)};//add the coefficients
-         t[ti++] = tt;
+         term tt = {t[tas].exp,(t[tas].coeff+t[tbs].coeff)};//simply add the coefficients
+         t[ti++] = tt;//store the term in array t
          tas++;tbs++;
        }else if(res==-1){//if the exponent of a is lesser than b
 
-         term tt = {t[tbs].exp,(t[tbs].coeff)};//put the coefficient of b
-         t[ti++] = tt;
+         term tt = {t[tbs].exp,(t[tbs].coeff)};//put the coefficient and exponent of b
+         t[ti++] = tt;//store the term in array t
          tbs++;
        }else{//if the exponent of a is greater than b
 
-         term tt = {t[tas].exp,(t[tas].coeff)};//put the coefficient of a
-         t[ti++] = tt;
+         term tt = {t[tas].exp,(t[tas].coeff)};//put the coefficient and exponent of a
+         t[ti++] = tt;//store the term in array t
          tas++;
        }
     }
@@ -218,7 +224,7 @@ polynomial* p;
      }
     
      int c = 0;
-     while(c<tti){//loop through tt
+     while(c<tti){//loop through tt and store in t
 
         if(ti>=max_t){//check if t is full
            printf("Not enough space\n");
@@ -240,7 +246,7 @@ polynomial* p;
      }
       
      polynomial tp = {init_ti,(ti-1)};
-     p[pi++] = tp;
+     p[pi++] = tp;//update p
      return tp;
   }
 
@@ -259,6 +265,7 @@ polynomial* p;
       return zero();
     }
 
+    //update array p
     polynomial y = {ti,(ti+length-1)};
     p[pi++] = y;
     
@@ -270,7 +277,7 @@ polynomial* p;
     return y;
   }
  
-  void print(polynomial a){
+  void print(polynomial a){//print the polynomial as a function of x
     if(a.start==-1){//if a is a zero  polynomial
       printf("0\n");
       return;

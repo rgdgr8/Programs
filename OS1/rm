@@ -1,0 +1,42 @@
+#!/bin/bash
+if [ $# -lt 1 ]; then
+	echo "This command requires at least one argument or -c or -f flag"
+	exit 1
+fi
+
+eval mdf=$prg/os1/my-deleted-files
+if [ ! -e "$mdf" ]; then
+	mkdir "$mdf"
+fi
+
+if [ "$1" = "-c" -o "$1" = "-cr" ]; then
+	if [ "${1:2:1}" = "r" -o "$2" = "-r" ]; then
+		/bin/rm -r "$mdf"/*
+	else
+		/bin/rm "$mdf"/*
+	fi 
+	echo "Cleared $mdf directory"
+	exit 0
+fi
+
+for f in $@; do
+	eval f="$f"
+	t=$( basename "$f" )
+	if [ -e "$mdf/$t" ]; then
+		echo "A deleted file with the same name already exists"
+		select opt in Replace Rename Cancel
+		do
+					if [ "$opt" = "Replace" ]; then
+						mv "$f" "$mdf"
+					elif [ "$opt" = "Rename" ]; then
+						d=$( dirname "$f" )
+						mv "$f" "$d/v1-$t"
+						mv "$mdf/$t" "$mdf/v0-$t"
+						mv "$d/v1-$t" "$mdf"
+					fi
+					break
+		done
+	else
+		mv "$f" "$mdf"
+	fi
+done

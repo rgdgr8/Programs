@@ -10,14 +10,14 @@ import checksum
 from threading import Thread,Condition,Lock
 
 class Network:
-    PORT = 12345
+    PORT = 1025
     def __init__(self,opt,timeout=1,recvBytes=1024,bits=256):
         self.recvB = recvBytes
         self.timeout = timeout
         self.bits = bits
         self.opt = opt
+        Network.PORT += 1
         #random.seed(Network.PORT)
-        Network.PORT = random.randint(1025,12345)#using the same port for different runs can give error, so the port number is changed for each run
 
         #---fill up file data.txt with 'bits' number of random bits---#
         with open("data.txt","w") as file:
@@ -77,9 +77,9 @@ class Network:
             j += 1
 
     def sender_lrc_or_checksum(self,data,mysock,lrc_or_checksum):
-        frame = self.bits//4 #frame size is (total no. of bits)/4 for lrc, assuming that the total number of bits is divisible by 4
+        frame = self.bits//4 #frame size is (total no. of bits)/4 for checksum, assuming that the total number of bits is divisible by 4
         if(lrc_or_checksum is lrc):
-            frame = int(sqrt(self.bits)) #frame size is square root of the total number of bits for checksum, assuming that the total number of bits is a perfect square.
+            frame = int(sqrt(self.bits)) #frame size is square root of the total number of bits for lrc, assuming that the total number of bits is a perfect square.
         j = 0
         words = []
         for i in range(frame,len(data)+1,frame):
@@ -98,7 +98,7 @@ class Network:
         frame = self.bits//4
         if(lrc_or_checksum is lrc):
             frame = int(sqrt(self.bits))
-        #sender.settimeout(self.timeout//2)#so that receiver recv() times out before sender, otherwise the response will not be received by the sender
+        
         codeword = ""
         try:
             while True:
@@ -117,7 +117,7 @@ class Network:
         sender.sendall(error.encode())
 
     def sender(self):
-        time.sleep(0.5) #so that the receiver thread starts before the sender thread
+        time.sleep(0.3) #so that the receiver thread starts before the sender thread
         mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         mysock.connect((socket.gethostname(),Network.PORT))
 

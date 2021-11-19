@@ -13,7 +13,7 @@ class SP:
     def client(self):
         mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         mysock.connect((socket.gethostname(),SP.PORT))
-        mysock.settimeout(self.timeout)#this is required so that the blocking recv() call gets timeout exception if it is not receiving and the loop can move on
+        mysock.settimeout(self.timeout)#this is required so that the blocking recv() call gets timeout exception if it is not receiving and the loop can move on. The cause of the problem is the last trip of the loop, when sendall has finished and all data has been received but still the receiver goes to the final loop run and calls recv and meanwhile sender also goes ahead after sendall and calls recv and now both the threads get blocked forever.
         try:
             for loop in range(1,self.loop):
                 try:
@@ -27,6 +27,7 @@ class SP:
                 except:
                     pass
         finally:
+            print('client end')
             mysock.close()
 
     def server(self):

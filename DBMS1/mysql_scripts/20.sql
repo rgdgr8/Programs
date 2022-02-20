@@ -1,0 +1,1 @@
+select emp_code, emp_name, temp.dept_code, dept_name, desig_desc, sex, address, city, state, pin, basic, jn_dt from (select *, count(*) over(partition by dept_code order by basic) as x from emp) as temp, designation as desg, department as dept where temp.dept_code=dept.dept_code and temp.desig_code=desg.desig_code;

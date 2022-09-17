@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Actions on Student DB"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        android:layout_marginBottom="50dp"/>
+    <Button
+        android:id="@+id/add"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="ADD"
+        android:gravity="center"
+        />
+    <Button
+        android:id="@+id/search"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="SEARCH"
+        android:gravity="center"
+        />
+    <Button
+        android:id="@+id/edit"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="EDIT"
+        android:gravity="center"
+        />
+    <Button
+        android:id="@+id/delete"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="DELETE"
+        android:gravity="center"
+        />
+    <Button
+        android:id="@+id/display"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="DISPLAY"
+        android:gravity="center"
+        />
+
+</androidx.appcompat.widget.LinearLayoutCompat>
